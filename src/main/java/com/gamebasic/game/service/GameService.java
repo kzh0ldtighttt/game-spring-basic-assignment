@@ -25,7 +25,7 @@ public class GameService {
     private final GameRepository gameRepository;
     private final RunCardRepository runCardRepository;
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = false) // Connection is read-only. 에러 확인 후 true > false 수정
     public GameDetailResponse createGame(CreateRequest request) {
         Game game = gameRepository.save(new Game(request.getPlayerName()));
         saveDeck(game, request.getDeck());
