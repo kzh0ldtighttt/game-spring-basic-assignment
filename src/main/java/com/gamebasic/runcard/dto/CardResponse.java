@@ -4,8 +4,20 @@ import lombok.Getter;
 
 @Getter
 public class CardResponse {
-    // TODO (Lv 5): API 명세의 카드 응답 JSON에 맞게 필드를 만들고 생성자에서 채우세요.
 
+    // DB에 저장된 카드의 고유 ID
+    private Long id;
+
+    // 카드 종류
+    private String cardType;
+
+    // 카드를 획득한 층
+    private Integer acquiredFloor;
+
+    // 카드 정보를 받아 응답 DTO 생성
     public CardResponse(Long id, String cardType, int acquiredFloor) {
+        this.id = id;
+        this.cardType = cardType;
+        this.acquiredFloor = acquiredFloor;
     }
 }
