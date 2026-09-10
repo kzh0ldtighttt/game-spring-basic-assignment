@@ -2,15 +2,13 @@ package com.gamebasic.game.controller;
 
 import com.gamebasic.game.dto.CreateRequest;
 import com.gamebasic.game.dto.GameDetailResponse;
+import com.gamebasic.game.dto.ProgressRequest;
 import com.gamebasic.game.service.GameService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -32,12 +30,21 @@ public class GameController {
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
-    // TODO (Lv 6): 진행과 전체 덱 저장. 주석을 풀고 구현하세요.
-    // @PutMapping("/games/{gameId}/progress")
-    // public ResponseEntity<?> updateProgress(
-    //     @PathVariable Long gameId,
-    //     @Valid @RequestBody ProgressRequest request
-    // ) {
-    //     return ResponseEntity.ok(gameService.updateProgress(gameId, request));
-    // }
+    // 특정 게임의 진행 상태와 전체 덱을 저장하는 API
+    @PutMapping("/games/{gameId}/progress")
+    public ResponseEntity<GameDetailResponse> updateProgress(
+
+            // 주소의 {gameId} 값을 가져와 어떤 게임인지 확인
+            @PathVariable Long gameId,
+
+            // 요청으로 받은 진행 정보를 ProgressRequest에 담고
+            // @Valid로 값이 조건에 맞는지 확인
+            @Valid @RequestBody ProgressRequest request
+    ) {
+        // gameId와 진행 정보를 Service로 보내 저장
+        // updateProgress의 결과가 GameDetailResponse이므로 응답 타입도 동일하게 작성
+        return ResponseEntity.ok(
+                gameService.updateProgress(gameId, request)
+        );
+    }
 }
