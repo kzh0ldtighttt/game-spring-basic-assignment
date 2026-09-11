@@ -16,6 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import com.gamebasic.game.dto.GameSummaryResponse;
 
+import com.gamebasic.game.dto.RenameRequest;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,13 +38,13 @@ public class GameService {
             deck.add(new CardResponse(card.getId(), card.getCardType(), card.getAcquiredFloor()));
         }
         return new GameDetailResponse(
-            game.getId(),
-            game.getPlayerName(),
-            game.getCurrentHp(),
-            game.getCurrentFloor(),
-            game.getPhase(),
-            game.getStatus(),
-            deck
+                game.getId(),
+                game.getPlayerName(),
+                game.getCurrentHp(),
+                game.getCurrentFloor(),
+                game.getPhase(),
+                game.getStatus(),
+                deck
         );
     }
 
@@ -56,17 +58,17 @@ public class GameService {
 
     private Game findGame(Long gameId) {
         return gameRepository.findById(gameId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
     @Transactional
     public GameDetailResponse updateProgress(Long gameId, ProgressRequest request) {
         Game game = findGame(gameId);
         game.updateProgress(
-            request.getCurrentHp(),
-            request.getCurrentFloor(),
-            request.getPhase(),
-            request.getStatus()
+                request.getCurrentHp(),
+                request.getCurrentFloor(),
+                request.getPhase(),
+                request.getStatus()
         );
         // 요청의 deck은 저장할 덱 전체이므로 기존 카드를 모두 지우고 요청 순서대로 다시 저장합니다.
         runCardRepository.deleteAllByGame(game);
@@ -77,13 +79,13 @@ public class GameService {
             deck.add(new CardResponse(card.getId(), card.getCardType(), card.getAcquiredFloor()));
         }
         return new GameDetailResponse(
-            game.getId(),
-            game.getPlayerName(),
-            game.getCurrentHp(),
-            game.getCurrentFloor(),
-            game.getPhase(),
-            game.getStatus(),
-            deck
+                game.getId(),
+                game.getPlayerName(),
+                game.getCurrentHp(),
+                game.getCurrentFloor(),
+                game.getPhase(),
+                game.getStatus(),
+                deck
         );
     }
 
@@ -149,6 +151,28 @@ public class GameService {
         );
     }
 
-    // TODO (Lv 8): 플레이어 이름 변경 — 변경 감지로 수정
-    // TODO (Lv 8): 게임 삭제
+    // 플레이어 이름 변경
+    @Transactional
+    public void renameGame(Long gameId, RenameRequest request) {
+
+        // gameId에 해당하는 게임 조회
+        Game game = findGame(gameId);
+
+        // 요청으로 받은 새 이름으로 변경
+        game.rename(request.getPlayerName());
+    }
+
+    // 게임 삭제
+    @Transactional
+    public void deleteGame(Long gameId) {
+
+        // gameId에 해당하는 게임 조회
+        Game game = findGame(gameId);
+
+        // 게임에 속한 카드들을 먼저 삭제
+        runCardRepository.deleteAllByGame(game);
+
+        // 카드 삭제 후 게임 삭제
+        gameRepository.delete(game);
+    }
 }

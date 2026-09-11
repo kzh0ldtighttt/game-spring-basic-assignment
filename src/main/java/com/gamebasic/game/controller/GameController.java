@@ -1,9 +1,6 @@
 package com.gamebasic.game.controller;
 
-import com.gamebasic.game.dto.CreateRequest;
-import com.gamebasic.game.dto.GameDetailResponse;
-import com.gamebasic.game.dto.GameSummaryResponse;
-import com.gamebasic.game.dto.ProgressRequest;
+import com.gamebasic.game.dto.*;
 import com.gamebasic.game.service.GameService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -56,5 +53,32 @@ public class GameController {
         return ResponseEntity.ok(
                 gameService.updateProgress(gameId, request)
         );
+    }
+
+    // 특정 게임의 플레이어 이름을 변경하는 API
+    @PatchMapping("/games/{gameId}")
+    public ResponseEntity<Void> renameGame(
+            @PathVariable Long gameId,
+            @Valid @RequestBody RenameRequest request
+    ) {
+
+        // gameId와 새 플레이어 이름을 Service에 전달
+        gameService.renameGame(gameId, request);
+
+        // 성공하면 응답 내용 없이 204 반환
+        return ResponseEntity.noContent().build();
+    }
+
+    // 특정 게임을 삭제하는 API
+    @DeleteMapping("/games/{gameId}")
+    public ResponseEntity<Void> deleteGame(
+            @PathVariable Long gameId
+    ) {
+
+        // gameId를 Service에 전달해서 게임 삭제
+        gameService.deleteGame(gameId);
+
+        // 삭제 성공 시 응답 내용 없이 204 반환
+        return ResponseEntity.noContent().build();
     }
 }
