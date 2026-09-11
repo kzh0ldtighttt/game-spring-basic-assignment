@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service; // 추가
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import com.gamebasic.game.dto.GameSummaryResponse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -86,15 +87,67 @@ public class GameService {
         );
     }
 
-    // TODO (Lv 7): 게임 목록 조회. 주석을 풀고 구현하세요.
-    // @Transactional(readOnly = true)
-    // public List<GameSummaryResponse> getGames() {
-    // }
 
-    // TODO (Lv 7): 게임 상세 조회. 주석을 풀고 구현하세요.
-    // @Transactional(readOnly = true)
-    // public GameDetailResponse getGame(Long gameId) {
-    // }
+    // 저장된 게임 목록 조회
+    @Transactional(readOnly = true)
+    public List<GameSummaryResponse> getGames() {
+
+        // 게임 목록을 id 기준 내림차순으로 조회
+        List<Game> games = gameRepository.findAllByOrderByIdDesc();
+
+        // 조회한 게임 정보를 담을 응답 목록 생성
+        List<GameSummaryResponse> responses = new ArrayList<>();
+
+        // Game 데이터를 하나씩 GameSummaryResponse로 바꿔서 추가
+        for (Game game : games) {
+            responses.add(new GameSummaryResponse(
+                    game.getId(),
+                    game.getPlayerName(),
+                    game.getCurrentFloor(),
+                    game.getCurrentHp(),
+                    game.getPhase(),
+                    game.getStatus()
+            ));
+        }
+
+        // 완성된 게임 목록 반환
+        return responses;
+    }
+
+    // 게임 상세 조회.
+    @Transactional(readOnly = true)
+    public GameDetailResponse getGame(Long gameId) {
+
+        // gameId에 해당하는 게임 조회
+        // 없는 게임이면 기존 findGame()에서 404 처리
+        Game game = findGame(gameId);
+
+        // 해당 게임의 카드를 id 기준 오름차순으로 조회
+        List<RunCard> cards = runCardRepository.findAllByGameOrderByIdAsc(game);
+
+        // 카드 정보를 담을 응답 목록 생성
+        List<CardResponse> deck = new ArrayList<>();
+
+        // 조회한 카드를 하나씩 CardResponse로 바꿔서 추가
+        for (RunCard card : cards) {
+            deck.add(new CardResponse(
+                    card.getId(),
+                    card.getCardType(),
+                    card.getAcquiredFloor()
+            ));
+        }
+
+        // 게임 정보와 덱을 담아서 상세 조회 결과 반환
+        return new GameDetailResponse(
+                game.getId(),
+                game.getPlayerName(),
+                game.getCurrentHp(),
+                game.getCurrentFloor(),
+                game.getPhase(),
+                game.getStatus(),
+                deck
+        );
+    }
 
     // TODO (Lv 8): 플레이어 이름 변경 — 변경 감지로 수정
     // TODO (Lv 8): 게임 삭제
